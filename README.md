@@ -1,26 +1,48 @@
-# CoffeeShopAnalysis
-Outlines of the analysis of the coffee shop done in SQL and Data analysis
 
-Overview:
-This project analyzes historical sales data from Bright Coffee Shop to extract business insights for the newly appointed CEO. The goal is to support data-driven decision-making through SQL processing, Excel dashboards, and visual storytelling.
 
-Aim:
-Analyzing Historical Sales Data to Provide Business Insights for the New CEO of Bright Coffee Shop
+--Get the earliest time the shop closes
 
-Objective:
-• Which products generate the most revenue
-• What time of day the store performs best
-• Sales trends across products and time intervals
-• Recommendations for improving sales performance
 
-Tools & Technologies Used
-- Snowflake (SQL)
-- Microsoft Excel
-- Miro (for planning)
-- Canva (for presentation)
+--Get the latest time the shop closes
+SELECT MAX(transaction_time)
+FROM coffee_shop_sales;
 
-  Project Workflow
-  -  Data Planning: Created a data flow and architecture diagram in Miro
-  -  Data Cleaning: Processed raw sales data in Snowflake
-  -  Data Analysis: Exported clean data and used Excel to create pivot tables and graphs
-  -  Designed a business report and presentation for the CEO
+--Final Query fo analysis
+SELECT 
+   SUM(transaction_qty*unit_price) AS total_revenue.
+   SUM(transaction_qty) AS number_of_units_sold.
+   COUNT(transaction_id) AS number_of_sales.
+
+   TO_DATE(TRANSACTION_DATE)
+   TO_CHAR(TRANSACTION_DATE, 'YYYYMM') AS month_id,
+   MONTHNAME (TRANSACTION_DATE) AS month_name
+
+   CASE
+      WHEN transaction_time BETWEEN "06:00:00" AND "11:59:59" THEN 'Morning'
+      WHEN transaction_time BETWEEN "12:00:00" AND "15:59:59" THEN 'Afternoon'
+      WHEN transaction_time BETWEEN "16:00:00" AND "20:00:00" THN  'Evening'
+      ELSE 'Night'
+  END AS time_bucket,
+
+         product_category,
+         product_type,
+         product_detail,
+         store_location
+   CASE
+      WHEN SUM(transaction_qty*unit_price) BETWEEN 0 AND 20 THEN 'low'
+      WHEN SUM(transaction_qty*unit_price) BETWEEN 21 AND 40 THEN 'Med'
+      WHEN SUM(transaction_qty*unit_price) BETWEEN 41 AND 60 THEN  'High'
+      ELSE 'Very High'
+      END AS spend_bands,
+     
+  FROM coffee_shop_sales  
+  GROUP BY time_bucket,
+           product_category,
+           product_type,
+           product_detail,
+           store_location,
+           month_id,
+           month_name,
+           day_name,
+ --(dont end in group by because its already there(not aggregate))
+         
